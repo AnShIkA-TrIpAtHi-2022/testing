@@ -53,21 +53,12 @@ pipeline {
 
         stage('Send Report via Email') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'email-credentials-id', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
-                    emailext subject: "OWASP ZAP Security Report",
-                        body: "Attached is the latest security scan report from OWASP ZAP.",
-                        to: "recipient@example.com",
-                        attachLog: false,
-                        attachmentsPattern: "**/zap_report.html",
-                        mimeType: 'text/html',
-                        from: "${SMTP_USER}",
-                        replyTo: "${SMTP_USER}",
-                        smtpServer: "smtp.gmail.com",
-                        smtpPort: "587",
-                        useSsl: true,
-                        username: "${SMTP_USER}",
-                        password: "${SMTP_PASS}"
-                }
+                emailext subject: "OWASP ZAP Security Report",
+                    body: "Attached is the latest security scan report.",
+                    to: "recipient@example.com",
+                    attachLog: false,
+                    attachmentsPattern: "**/zap_report.html",
+                    mimeType: 'text/html'
             }
         }
     }
