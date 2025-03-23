@@ -27,7 +27,7 @@ pipeline {
         stage('Start Application') {
             steps {
                 bat 'start /B node server.js'
-                sleep(time: 10, unit: 'SECONDS')
+                sleep(time: 10, unit: 'SECONDS')  // Wait for the server to start
             }
         }
 
@@ -35,11 +35,10 @@ pipeline {
             steps {
                 bat """
                     cd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
-                    zap.bat -cmd -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.xml" -script "%WORKSPACE%\\zap_scan.js"
+                    zap.bat -cmd -port 9090 -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.xml" -script "%WORKSPACE%\\zap_scan.js"
                 """
             }
         }
-
 
         stage('Publish OWASP ZAP Report') {
             steps {
