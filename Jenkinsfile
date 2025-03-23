@@ -34,7 +34,7 @@ pipeline {
         stage('Run OWASP ZAP Scan') {
             steps {
                 bat """
-                ${OWASP_ZAP_PATH} -cmd -quickurl ${TARGET_URL} -quickout zap_report.xml -script zap_scan.js
+                    "${OWASP_ZAP_PATH}" -cmd -quickurl ${TARGET_URL} -quickout zap_report.xml -script zap_scan.js
                 """
             }
         }
