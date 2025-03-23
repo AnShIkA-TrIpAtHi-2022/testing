@@ -55,7 +55,7 @@ pipeline {
             steps {
                 emailext subject: "OWASP ZAP Security Report",
                     body: "Attached is the latest security scan report.",
-                    to: "anshika170204@gmail.com",
+                    to: "anshikatripathi170204@gmail.com",
                     attachLog: false,
                     attachmentsPattern: "**/zap_report.html",
                     mimeType: 'text/html'
