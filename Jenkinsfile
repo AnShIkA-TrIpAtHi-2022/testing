@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        nodejs "nodejs"  // Ensure Node.js is installed in Jenkins
+        nodejs "nodejs"
     }
 
     environment {
         CI = "true"
-        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"   // Update this path
+        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"
         TARGET_URL = "http://localhost:3000"
         GROQ_API_KEY = "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"  // Replace with your actual key
     }
@@ -27,25 +27,25 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                bat 'start /B node server.js' // Proper way to start Node.js in Windows
-                sleep(time: 10, unit: 'SECONDS') // Wait for the server to start
+                bat 'start /B node server.js'
+                sleep(time: 10, unit: 'SECONDS')
             }
         }
 
         stage('Generate OWASP ZAP Script Using Groq AI') {
             steps {
                 script {
-                    def ai_api_url = "https://api.groq.com/v1/chat/completions"
+                    def ai_api_url = "https://api.groq.com/openai/v1/chat/completions"
                     
                     def requestBody = """{
-                        "model": "gemini-1.5-flash",
+                        "model": "mixtral-8x7b-32768",
                         "messages": [
                             {"role": "system", "content": "You are an assistant that generates OWASP ZAP scan scripts."},
-                            {"role": "user", "content": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}. make sure you give only the code and no other text as response."}
+                            {"role": "user", "content": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}. Only provide the code without additional text."}
                         ]
                     }"""
 
-                    def response = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${GROQ_API_KEY}\" -d \"${requestBody}\"", returnStdout: true).trim()
+                    def response = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${GROQ_API_KEY}\" --data-raw \"${requestBody}\"", returnStdout: true).trim()
 
                     writeFile file: 'zap_scan.js', text: response
                 }
