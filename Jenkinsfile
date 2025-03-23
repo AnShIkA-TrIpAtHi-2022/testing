@@ -25,10 +25,10 @@ pipeline {
             }
         }
 
-        stage('Start Server') {
+        stage('Start Application') {
             steps {
-                bat 'node server.js &'
-                sleep(time: 5, unit: 'SECONDS')  // Give time for server to start
+                sh 'nohup node server.js &'
+                sleep(time: 10, unit: 'SECONDS') // Ensure the server starts before scanning
             }
         }
 
