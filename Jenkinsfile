@@ -7,9 +7,9 @@ pipeline {
 
     environment {
         CI = "true"
-        OWASP_ZAP_PATH = "\"C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat\""  // Windows needs escaped paths
+        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"   // Update this path
         TARGET_URL = "http://localhost:3000"
-        GEMINI_API_KEY = "AIzaSyCiQhoTk8zymsivgAQvV4gUCEeGi5lOxVs"
+        GROQ_API_KEY = "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"  // Replace with your actual key
     }
 
     stages {
@@ -27,34 +27,35 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                bat 'start /B node server.js'  // Windows alternative for nohup
-                sleep(time: 15, unit: 'SECONDS')  // Ensure the server starts before scanning
+                bat 'start /B node server.js' // Proper way to start Node.js in Windows
+                sleep(time: 10, unit: 'SECONDS') // Wait for the server to start
             }
         }
 
-        stage('Generate OWASP ZAP Script Using Gemini AI') {
+        stage('Generate OWASP ZAP Script Using Groq AI') {
             steps {
                 script {
-                    def ai_api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}"
+                    def ai_api_url = "https://api.groq.com/v1/chat/completions"
                     
-                    def requestBody = '''{
-                        "contents": [{
-                            "parts": [{"text": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}"}]
-                        }]
-                    }'''
+                    def requestBody = """{
+                        "model": "gemini-1.5-flash",
+                        "messages": [
+                            {"role": "system", "content": "You are an assistant that generates OWASP ZAP scan scripts."},
+                            {"role": "user", "content": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}. make sure you give only the code and no other text as response."}
+                        ]
+                    }"""
 
-                    def zap_script = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -d \"${requestBody}\"", returnStdout: true).trim()
+                    def response = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${GROQ_API_KEY}\" -d \"${requestBody}\"", returnStdout: true).trim()
 
-                    writeFile file: 'zap_scan.js', text: zap_script
+                    writeFile file: 'zap_scan.js', text: response
                 }
             }
         }
 
-
         stage('Run OWASP ZAP Scan') {
             steps {
                 bat '''
-                "%OWASP_ZAP_PATH%" -cmd -quickurl "%TARGET_URL%" -quickout zap_report.xml
+                ${OWASP_ZAP_PATH} -cmd -quickurl ${TARGET_URL} -quickout zap_report.xml
                 '''
             }
         }
