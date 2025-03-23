@@ -34,10 +34,12 @@ pipeline {
         stage('Run OWASP ZAP Scan') {
             steps {
                 bat """
-                    "${OWASP_ZAP_PATH}" -cmd -quickurl ${TARGET_URL} -quickout zap_report.xml -script zap_scan.js
+                    cd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
+                    zap.bat -cmd -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.xml" -script "%WORKSPACE%\\zap_scan.js"
                 """
             }
         }
+
 
         stage('Publish OWASP ZAP Report') {
             steps {
