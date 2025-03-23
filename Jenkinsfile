@@ -34,21 +34,20 @@ pipeline {
         stage('Run OWASP ZAP Scan') {
             steps {
                 bat """
-                    "%OWASP_ZAP_PATH%" -cmd -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.html"
+                    cd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
+                    zap.bat -cmd -port 9090 -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.xml" -script "%WORKSPACE%\\zap_scan.js"
                 """
             }
         }
 
         stage('Publish OWASP ZAP Report') {
             steps {
-                publishHTML([
-                    allowMissing: false,
+                publishHTML([allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
                     reportDir: '.',
-                    reportFiles: 'zap_report.html',
-                    reportName: "OWASP ZAP Security Report"
-                ])
+                    reportFiles: 'zap_report.xml',
+                    reportName: "OWASP ZAP Security Report"])
             }
         }
     }
