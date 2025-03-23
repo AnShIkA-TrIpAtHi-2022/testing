@@ -36,25 +36,20 @@ pipeline {
             steps {
                 script {
                     def ai_api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}"
-                    def requestBody = """
-                    {
+                    
+                    def requestBody = '''{
                         "contents": [{
-                            "parts":[{"text": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}"}]
+                            "parts": [{"text": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}"}]
                         }]
-                    }
-                    """
+                    }'''
 
-                    // Send the API request
-                    def zap_script_response = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -d \"${requestBody}\"", returnStdout: true).trim()
+                    def zap_script = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -d \"${requestBody}\"", returnStdout: true).trim()
 
-                    // Extract the script from the response
-                    def zap_script = zap_script_response.replaceAll(".*\"text\":\"([^\"]+)\".*", "\$1")
-
-                    // Write the OWASP ZAP script to a file
                     writeFile file: 'zap_scan.js', text: zap_script
                 }
             }
         }
+
 
         stage('Run OWASP ZAP Scan') {
             steps {
