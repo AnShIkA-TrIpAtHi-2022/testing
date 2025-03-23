@@ -46,7 +46,7 @@ pipeline {
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
                     reportDir: '.',
-                    reportFiles: 'zap_report.xml',
+                    reportFiles: 'zap_report.html',
                     reportName: "OWASP ZAP Security Report"])
             }
         }
