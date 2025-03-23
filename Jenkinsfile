@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         CI = "true"
-        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.sh"   // Update this to your OWASP ZAP path
+        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"   // Update this to your OWASP ZAP path
         TARGET_URL = "http://localhost:3000"
         GEMINI_API_KEY = "AIzaSyCiQhoTk8zymsivgAQvV4gUCEeGi5lOxVs"
     }
