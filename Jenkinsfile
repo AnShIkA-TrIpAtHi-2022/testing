@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         CI = "true"
-        OWASP_ZAP_PATH = "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"   // Update this to your OWASP ZAP path
+        OWASP_ZAP_PATH = "\"C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat\""  // Windows needs escaped paths
         TARGET_URL = "http://localhost:3000"
         GEMINI_API_KEY = "AIzaSyCiQhoTk8zymsivgAQvV4gUCEeGi5lOxVs"
     }
@@ -27,8 +27,8 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                bat 'nohup node server.js &'
-                sleep(time: 10, unit: 'SECONDS') // Ensure the server starts before scanning
+                bat 'start /B node server.js'  // Windows alternative for nohup
+                sleep(time: 15, unit: 'SECONDS')  // Ensure the server starts before scanning
             }
         }
 
@@ -36,14 +36,21 @@ pipeline {
             steps {
                 script {
                     def ai_api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}"
-                    def requestBody = '''{
+                    def requestBody = """
+                    {
                         "contents": [{
-                            "parts":[{"text": "Generate an OWASP ZAP scan script for scanning "''' + TARGET_URL + '''"}]
+                            "parts":[{"text": "Generate an OWASP ZAP scan script for scanning ${TARGET_URL}"}]
                         }]
-                    }'''
+                    }
+                    """
 
-                    def zap_script = sh(script: "curl -X POST '${ai_api_url}' -H 'Content-Type: application/json' -d '${requestBody}'", returnStdout: true).trim()
+                    // Send the API request
+                    def zap_script_response = bat(script: "curl -X POST \"${ai_api_url}\" -H \"Content-Type: application/json\" -d \"${requestBody}\"", returnStdout: true).trim()
 
+                    // Extract the script from the response
+                    def zap_script = zap_script_response.replaceAll(".*\"text\":\"([^\"]+)\".*", "\$1")
+
+                    // Write the OWASP ZAP script to a file
                     writeFile file: 'zap_scan.js', text: zap_script
                 }
             }
@@ -52,7 +59,7 @@ pipeline {
         stage('Run OWASP ZAP Scan') {
             steps {
                 bat '''
-                ${OWASP_ZAP_PATH} -cmd -quickurl ${TARGET_URL} -quickout zap_report.xml
+                "%OWASP_ZAP_PATH%" -cmd -quickurl "%TARGET_URL%" -quickout zap_report.xml
                 '''
             }
         }
