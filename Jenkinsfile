@@ -35,7 +35,7 @@ pipeline {
             steps {
                 bat """
                     cd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
-                    zap.bat -cmd -port 9090 -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.xml" -script "%WORKSPACE%\\zap_scan.js"
+                    zap.bat -cmd -port 9090 -quickurl ${TARGET_URL} -quickout "%WORKSPACE%\\zap_report.html" -script "%WORKSPACE%\\zap_scan.js"
                 """
             }
         }
