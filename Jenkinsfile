@@ -27,7 +27,7 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                sh 'nohup node server.js &'
+                bat 'nohup node server.js &'
                 sleep(time: 10, unit: 'SECONDS') // Ensure the server starts before scanning
             }
         }
